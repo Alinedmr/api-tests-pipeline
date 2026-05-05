@@ -1,0 +1,43 @@
+name: API Tests com Newman
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+jobs:
+  api-tests:
+    name: Executar testes da API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Criar pasta de relatórios
+        run: mkdir -p reports
+
+      - name: Executar testes com Newman
+        run: npm test
+
+      - name: Publicar relatório HTML
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report
+          path: reports/newman-report.html
+          retention-days: 30

@@ -1,0 +1,12 @@
+{
+  "name": "api-tests-pipeline",
+  "version": "1.0.0",
+  "description": "Testes automatizados de API com Newman",
+  "scripts": {
+    "test": "newman run postman/collection.json -e postman/environment.json --reporters cli,htmlextra --reporter-htmlextra-export reports/newman-report.html"
+  },
+  "devDependencies": {
+    "newman": "^6.1.0",
+    "newman-reporter-htmlextra": "^1.22.11"
+  }
+}
