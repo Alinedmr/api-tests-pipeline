@@ -1,0 +1,1162 @@
+{
+  "info": {
+    "_postman_id": "34358c08-754d-4d55-86fb-d232e74a9f88",
+    "name": "Petstore v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50359535"
+  },
+  "item": [
+    {
+      "name": "Pets",
+      "item": [
+        {
+          "name": "Criar Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('[200] Status code é 200', () => {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('[PERF] Tempo de resposta < 3000ms', () => {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('[HEADER] Content-Type contém application/json', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "let json;\r",
+                  "pm.test('[BODY] Resposta é JSON válido', () => {\r",
+                  "    pm.expect(() => { json = pm.response.json(); }).to.not.throw();\r",
+                  "});\r",
+                  "\r",
+                  "if (json) {\r",
+                  "    pm.test('[CAMPO] id é número', () => {\r",
+                  "        pm.expect(json.id).to.be.a('number');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] name é string não vazia', () => {\r",
+                  "        pm.expect(json.name).to.be.a('string').and.not.empty;\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] name é \"doggie\"', () => {\r",
+                  "        pm.expect(json.name).to.eql('doggie');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] status é \"available\"', () => {\r",
+                  "        pm.expect(json.status).to.eql('available');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] status é valor válido da enum', () => {\r",
+                  "        pm.expect(['available', 'pending', 'sold']).to.include(json.status);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] photoUrls é array', () => {\r",
+                  "        pm.expect(json.photoUrls).to.be.an('array');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] tags é array', () => {\r",
+                  "        pm.expect(json.tags).to.be.an('array');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] category é objeto com id e name', () => {\r",
+                  "        pm.expect(json.category).to.be.an('object');\r",
+                  "        pm.expect(json.category).to.have.property('id');\r",
+                  "        pm.expect(json.category).to.have.property('name');\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test('[CAMPO] tags[0] tem id e name', () => {\r",
+                  "        if (json.tags.length > 0) {\r",
+                  "            pm.expect(json.tags[0]).to.have.property('id');\r",
+                  "            pm.expect(json.tags[0]).to.have.property('name');\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.environment.set('pet_id', json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 4566,\r\n  \"category\": {\r\n    \"id\": 0,\r\n    \"name\": \"string\"\r\n  },\r\n  \"name\": \"doggie\",\r\n  \"photoUrls\": [\r\n    \"string\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 0,\r\n      \"name\": \"string\"\r\n    }\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/pet",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Pet por ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('pet_id')) throw new Error('Execute \"Criar Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('id corresponde ao pet_id do environment', () => {\r",
+                  "    pm.expect(json.id).to.eql(parseInt(pm.environment.get('pet_id')));\r",
+                  "});\r",
+                  "pm.test('status é valor válido', () => {\r",
+                  "    pm.expect(['available', 'pending', 'sold']).to.include(json.status);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_base}}/pet/{{pet_id}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Pet por Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('Retorna array não vazio', () => {\r",
+                  "    pm.expect(json).to.be.an('array').and.not.empty;\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 4566,\r\n  \"category\": {\r\n    \"id\": 0,\r\n    \"name\": \"string\"\r\n  },\r\n  \"name\": \"doggie\",\r\n  \"photoUrls\": [\r\n    \"string\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 0,\r\n      \"name\": \"string\"\r\n    }\r\n  ],\r\n  \"status\": \"available\"\r\n}"
+            },
+            "url": {
+              "raw": "{{url_base}}/pet/findByStatus?status=available&status=pending&status=sold",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet",
+                "findByStatus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "available"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "status",
+                  "value": "sold"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar um Pet Existente",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('pet_id')) throw new Error('Execute \"Criar Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('id é número', () => pm.expect(json.id).to.be.a('number'));\r",
+                  "pm.test('category.name atualizado para \"Dinossauro\"', () => {\r",
+                  "    pm.expect(json.category.name).to.eql('Dinossauro');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 4566,\r\n  \"category\": {\r\n    \"id\": 0,\r\n    \"name\": \"Dinossauro\"\r\n  },\r\n  \"name\": \"doggie\",\r\n  \"photoUrls\": [\r\n    \"string\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 0,\r\n      \"name\": \"string\"\r\n    }\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/pet",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir Imagem do Pet",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('pet_id')) throw new Error('Execute \"Criar Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {}
+          },
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "{{special-key}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "special-key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "additionalMetadata",
+                  "value": "string",
+                  "type": "text",
+                  "uuid": "91285203-1b63-4bcd-8197-02788c25e78b"
+                },
+                {
+                  "key": "file",
+                  "description": "Imagem do Pet",
+                  "type": "file",
+                  "uuid": "8880a25f-a547-46a4-b1a2-177e8e33c35e",
+                  "src": "postman-cloud:///1f1482d6-be78-4820-bf2c-4a7db2322a77"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url_base}}/pet/{{pet_id}}/uploadImage",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}",
+                "uploadImage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir um Pet na Loja",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('pet_id')) throw new Error('Execute \"Criar Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "name",
+                  "value": "clovis",
+                  "type": "text",
+                  "uuid": "73e595cb-0166-463b-b866-62dfadb7b23b"
+                },
+                {
+                  "key": "status",
+                  "value": "available",
+                  "type": "text",
+                  "uuid": "7ed6559f-c7fc-41eb-8c34-6de359f75f43"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url_base}}/pet/{{pet_id}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar um Pet",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('pet_id')) throw new Error('Execute \"Criar Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message contém o ID deletado', () => {\r",
+                  "    pm.expect(json.message).to.include(String(pm.environment.get('pet_id')));\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.unset('pet_id');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/pet/{{pet_id}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "Pedido para um pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('id é número', () => pm.expect(json.id).to.be.a('number'));\r",
+                  "pm.test('status e complete corretos', () => {\r",
+                  "    pm.expect(['placed', 'approved', 'delivered']).to.include(json.status);\r",
+                  "    pm.expect(json.complete).to.be.a('boolean');\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set('order_id', json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 9683,\r\n  \"petId\": 0,\r\n  \"quantity\": 0,\r\n  \"shipDate\": \"2026-05-05T04:02:47.134Z\",\r\n  \"status\": \"placed\",\r\n  \"complete\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/store/order",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "store",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Retornar Inventario por Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('Retorna objeto não vazio', () => {\r",
+                  "    pm.expect(json).to.be.an('object');\r",
+                  "    pm.expect(Object.keys(json).length).to.be.at.least(1);\r",
+                  "});\r",
+                  "pm.test('Todos os valores são inteiros >= 0', () => {\r",
+                  "    Object.entries(json).forEach(([key, val]) => {\r",
+                  "        pm.expect(Number.isInteger(val) && val >= 0, `${key}: ${val}`).to.be.true;\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_base}}/store/inventory",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "store",
+                "inventory"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Encontrar compra por ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('order_id')) throw new Error('Execute \"Pedido para um Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('id corresponde ao order_id do environment', () => {\r",
+                  "    pm.expect(json.id).to.eql(parseInt(pm.environment.get('order_id')));\r",
+                  "});\r",
+                  "pm.test('status é válido', () => {\r",
+                  "    pm.expect(['placed', 'approved', 'delivered']).to.include(json.status);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_base}}/store/order/{{order_id}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{order_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir pedido por ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('order_id')) throw new Error('Execute \"Pedido para um Pet\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message contém o ID excluído', () => {\r",
+                  "    pm.expect(json.message).to.include(String(pm.environment.get('order_id')));\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.unset('order_id');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 0,\r\n  \"petId\": 0,\r\n  \"quantity\": 0,\r\n  \"shipDate\": \"2026-05-05T04:02:47.134Z\",\r\n  \"status\": \"placed\",\r\n  \"complete\": true\r\n}"
+            },
+            "url": {
+              "raw": "{{url_base}}/store/order/{{order_id}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{order_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Criar Usuario",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"username\", \"Hallynnyh\");\r",
+                  "pm.environment.set(\"password\", \"123456\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": \"7123\",\r\n  \"username\": \"{{username}}\",\r\n  \"firstName\": \"string\",\r\n  \"lastName\": \"string\",\r\n  \"email\": \"string\",\r\n  \"password\": \"string\",\r\n  \"phone\": \"string\",\r\n  \"userStatus\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar lista de Usuarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"username\": \"string\",\r\n    \"firstName\": \"string\",\r\n    \"lastName\": \"string\",\r\n    \"email\": \"string\",\r\n    \"password\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"userStatus\": 0\r\n  }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user/createWithList",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "createWithList"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Usuario por nome de Usuario",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('username')) throw new Error('Execute \"Criar Usuário\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('username corresponde ao solicitado', () => {\r",
+                  "    pm.expect(json.username).to.eql(pm.environment.get('username'));\r",
+                  "});\r",
+                  "pm.test('campos obrigatórios presentes', () => {\r",
+                  "    pm.expect(json.id).to.be.a('number');\r",
+                  "    pm.expect(json.email).to.be.a('string');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_base}}/user/{{username}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Lista de Usuarios com Array",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"username\": \"string\",\r\n    \"firstName\": \"string\",\r\n    \"lastName\": \"string\",\r\n    \"email\": \"string\",\r\n    \"password\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"userStatus\": 0\r\n  }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user/createWithArray",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "createWithArray"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Usuário",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('username')) throw new Error('Execute \"Criar Usuário\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 0,\r\n  \"username\": \"string\",\r\n  \"firstName\": \"string\",\r\n  \"lastName\": \"string\",\r\n  \"email\": \"string\",\r\n  \"password\": \"string\",\r\n  \"phone\": \"string\",\r\n  \"userStatus\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user/{{username}}?username=path",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "path",
+                  "description": "Nome de usuario"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login do Usuario",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('username') || !pm.environment.get('password')) {\r",
+                  "    throw new Error('Execute \"Criar Usuário\" primeiro.');\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message (token) é string não vazia', () => pm.expect(json.message).to.be.a('string').and.not.empty);\r",
+                  "\r",
+                  "pm.environment.set('auth_token', json.message);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user/login",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sair da sessão",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message é \"ok\"', () => pm.expect(json.message).to.eql('ok'));\r",
+                  "\r",
+                  "pm.environment.unset('auth_token');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_base}}/user/logout",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Usuario",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('username')) throw new Error('Execute \"Criar Usuário\" primeiro.');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));\r",
+                  "pm.test('Tempo de resposta < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test('code é 200', () => pm.expect(json.code).to.eql(200));\r",
+                  "pm.test('message contém o username deletado', () => {\r",
+                  "    pm.expect(json.message).to.include(pm.environment.get('username'));\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.unset('username');\r",
+                  "pm.environment.unset('password');"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}/user/{{username}}",
+              "host": [
+                "{{url_base}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
