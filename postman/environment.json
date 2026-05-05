@@ -13,10 +13,16 @@
 			"value": "",
 			"type": "secret",
 			"enabled": true
+		},
+		{
+			"key": "pet_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
 		}
 	],
 	"color": null,
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2026-05-05T19:16:00.710Z",
+	"_postman_exported_at": "2026-05-05T20:53:23.764Z",
 	"_postman_exported_using": "Postman/12.9.2"
 }
