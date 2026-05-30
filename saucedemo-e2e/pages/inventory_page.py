@@ -19,7 +19,11 @@ class InventoryPage:
 
     def adicionar_produto(self, nome_produto):
         seletor = (By.XPATH, f'//div[text()="{nome_produto}"]/ancestor::div[@class="inventory_item"]//button')
-        self.wait.until(EC.element_to_be_clickable(seletor)).click()
+        botao = self.wait.until(EC.element_to_be_clickable(seletor))
+        botao.click()
+        # Aguarda o badge atualizar antes de continuar
+        import time
+        time.sleep(0.5)
 
     def obter_quantidade_carrinho(self):
         badge = self.wait.until(
