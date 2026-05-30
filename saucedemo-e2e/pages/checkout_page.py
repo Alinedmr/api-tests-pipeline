@@ -19,6 +19,8 @@ class CheckoutPage:
 
     def clicar_checkout(self):
         self.wait.until(EC.url_contains('/cart.html'))
+        print(f"\nURL atual: {self.driver.current_url}")
+        print(f"Título da página: {self.driver.title}")
         self.wait.until(EC.element_to_be_clickable(self.BOTAO_CHECKOUT)).click()
 
     def preencher_dados(self, nome, sobrenome, cep):
