@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class CheckoutPage:
 
-    BOTAO_CHECKOUT  = (By.ID, 'checkout')
+    BOTAO_CHECKOUT = (By.CSS_SELECTOR, '[data-test="checkout"]')
     CAMPO_NOME      = (By.ID, 'first-name')
     CAMPO_SOBRENOME = (By.ID, 'last-name')
     CAMPO_CEP       = (By.ID, 'postal-code')
