@@ -30,7 +30,7 @@ jobs:
       - name: Rodar testes
         run: |
           cd saucedemo-e2e
-          pytest tests/ --html=reports/relatorio.html --self-contained-html -v
+          python -m pytest tests/ --html=reports/relatorio.html --self-contained-html -v
 
       - name: Publicar relatório HTML
         if: always()
