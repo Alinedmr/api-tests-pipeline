@@ -18,6 +18,7 @@ class CheckoutPage:
         self.wait   = WebDriverWait(driver, 10)
 
     def clicar_checkout(self):
+        self.wait.until(EC.url_contains('/cart.html'))
         self.wait.until(EC.element_to_be_clickable(self.BOTAO_CHECKOUT)).click()
 
     def preencher_dados(self, nome, sobrenome, cep):
@@ -40,3 +41,4 @@ class CheckoutPage:
         return self.wait.until(
             EC.visibility_of_element_located(self.MSG_SUCESSO)
         ).text
+   
